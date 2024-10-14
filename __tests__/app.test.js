@@ -21,3 +21,14 @@ describe("/api/topics", () => {
       });
   });
 });
+
+describe("/api", () => {
+  test("GET: 200 - responds wit an object detailing all availble endpoints", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.endpoints).toEqual(endpoints);
+      });
+  });
+});

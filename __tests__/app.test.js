@@ -20,10 +20,24 @@ describe("/api/topics", () => {
         });
       });
   });
+  test("GET: 404 - responds with a custom error when a search is attempted for all topics but that endpoint has no data'", () => {
+    return db.query("DELETE FROM comments").then(() => {
+      return db.query("DELETE FROM articles").then(() => {
+        return db.query("DELETE FROM topics").then(() => {
+          return request(app)
+            .get("/api/topics")
+            .expect(404)
+            .then((response) => {
+              expect(response.body.msg).toBe("no topics available");
+            });
+        });
+      });
+    });
+  });
 });
 
 describe("/api", () => {
-  test("GET: 200 - responds wit an object detailing all availble endpoints", () => {
+  test("GET: 200 - responds with an object detailing all availble endpoints", () => {
     return request(app)
       .get("/api")
       .expect(200)

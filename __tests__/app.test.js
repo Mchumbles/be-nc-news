@@ -120,4 +120,48 @@ describe("/api/articles", () => {
         });
     });
   });
+  describe("/api/articles/:article_id/comments", () => {
+    test("GET: 200 - responds with an array of comments joined with the requested article_id, sorted by created_at, decending", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then((response) => {
+          const comments = response.body.comments;
+          comments.forEach((comment) => {
+            expect(typeof comment.comment_id).toBe("number");
+            expect(typeof comment.votes).toBe("number");
+            expect(typeof comment.created_at).toBe("string");
+            expect(typeof comment.author).toBe("string");
+            expect(typeof comment.body).toBe("string");
+            expect(typeof comment.article_id).toBe("number");
+          });
+          expect(comments).toBeSortedBy("created_at", { descending: true });
+        });
+    });
+    test("GET: 404 - returns an error when given a article_id that doesn't exist", () => {
+      return request(app)
+        .get("/api/articles/9999/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("article does not exist");
+        });
+    });
+    test("GET: 400 - responds with an error when a search is attempted with an invalid id", () => {
+      return request(app)
+        .get("/api/articles/not-an-id/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        });
+    });
+    test("GET: 200 - responds with an empty array when passed an article_id that is present in the database, but has no comments", () => {
+      return request(app)
+        .get("/api/articles/2/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(Array.isArray(body.comments)).toBe(true);
+          expect(body.comments).toHaveLength(0);
+        });
+    });
+  });
 });

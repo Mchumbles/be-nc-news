@@ -4,6 +4,7 @@ const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data");
 const endpoints = require("../endpoints.json");
+require("jest-extended");
 
 beforeEach(() => seed(data));
 afterAll(() => db.end());
@@ -47,7 +48,7 @@ describe("/api", () => {
   });
 });
 
-describe("/api/articles/:article_id", () => {
+describe("/api/articles", () => {
   describe("/api/articles/:article_id", () => {
     test("GET: 200 - responds with a specific article by searching its artticle_id", () => {
       return request(app)
@@ -78,6 +79,44 @@ describe("/api/articles/:article_id", () => {
         .expect(400)
         .then((response) => {
           expect(response.body.msg).toBe("bad request");
+        });
+    });
+  });
+  describe("/api/articles", () => {
+    test("GET: 200 - responds with an articles array of article objects, sorted by created_at DESC", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(Array.isArray(articles)).toBe(true);
+          articles.forEach((article) => {
+            expect(typeof article.author).toBe("string");
+            expect(typeof article.title).toBe("string");
+            expect(typeof article.article_id).toBe("number");
+            expect(typeof article.topic).toBe("string");
+            expect(typeof article.created_at).toBe("string");
+            expect(typeof article.votes).toBe("number");
+            expect(typeof article.article_img_url).toBe("string");
+            expect(typeof article.comment_count).toBe("number");
+          });
+          expect(articles).toBeSorted("created_at");
+        });
+    });
+    test("GET: 200 - take a sort-by query and respond with articles sorted by a given coloumn name that isnt the default", () => {
+      return request(app)
+        .get("/api/articles?srot_by=votes")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSorted("votes");
+        });
+    });
+    test("GET: 400 - returns an error when given a non-valid sort_by", () => {
+      return request(app)
+        .get("/api/articles?sort_by=nonense")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Invalid sort_by value");
         });
     });
   });

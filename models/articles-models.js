@@ -1,9 +1,9 @@
 const db = require("../db/connection");
 
 exports.selectArticles = (sort_by = "created_at") => {
-  const ValidSortBys = ["created_at", "votes"];
+  const validSortBys = ["created_at", "votes", "title", "author", "topic"];
 
-  if (!ValidSortBys.includes(sort_by)) {
+  if (!validSortBys.includes(sort_by)) {
     return Promise.reject({ status: 400, msg: "Invalid sort_by value" });
   }
 
@@ -19,7 +19,7 @@ exports.selectArticles = (sort_by = "created_at") => {
   FROM articles
   LEFT JOIN comments ON articles.article_id = comments.article_id
   GROUP BY articles.article_id
-  ORDER BY articles.created_at DESC;
+  ORDER BY ${sort_by} DESC;
 `;
   return db.query(queryStr).then(({ rows }) => {
     return rows;

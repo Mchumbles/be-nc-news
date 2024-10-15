@@ -2,6 +2,7 @@ const {
   selectArticleById,
   selectArticles,
 } = require("../models/articles-models");
+const { selectArticleComments } = require("../models/comments-models");
 const db = require("../db/connection");
 const { request } = require("express");
 
@@ -21,6 +22,24 @@ exports.getArticleById = (request, response, next) => {
   selectArticleById(article_id)
     .then((article) => {
       response.status(200).send({ article });
+    })
+    .catch((error) => {
+      next(error);
+    });
+};
+
+exports.getArticleComments = (request, response, next) => {
+  const { article_id } = request.params;
+
+  const promises = [selectArticleComments(article_id)];
+
+  if (article_id) {
+    promises.push(selectArticleById(article_id));
+  }
+  Promise.all(promises)
+    .then((results) => {
+      const comments = results[0];
+      response.status(200).send({ comments: comments });
     })
     .catch((error) => {
       next(error);

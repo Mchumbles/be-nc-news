@@ -40,5 +40,18 @@
         "article_img_url": "http://example.com/image.jpg"
       }
     }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "retrieves all comments joined to an article_id. Default sort_by is created_at decending",
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 5,
+        "body": "'I hate streaming noses'",
+        "article_id": 1,
+        "author": "icellusedkars",
+        "votes": 0,
+        "created_at": "2020-11-03T21:00:00.000Z"
+      }
+    }
   }
 }

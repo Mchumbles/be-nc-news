@@ -100,15 +100,15 @@ describe("/api/articles", () => {
             expect(typeof article.article_img_url).toBe("string");
             expect(typeof article.comment_count).toBe("number");
           });
-          expect(articles).toBeSorted("created_at");
+          expect(articles).toBeSortedBy("created_at", { descending: true });
         });
     });
     test("GET: 200 - take a sort-by query and respond with articles sorted by a given coloumn name that isnt the default", () => {
       return request(app)
-        .get("/api/articles?srot_by=votes")
+        .get("/api/articles?sort_by=title")
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles).toBeSorted("votes");
+          expect(body.articles).toBeSortedBy("title", { descending: true });
         });
     });
     test("GET: 400 - returns an error when given a non-valid sort_by", () => {

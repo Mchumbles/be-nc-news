@@ -10,7 +10,7 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all articles",
+    "description": "serves an array of all articles. Default sort_by is created_at decending",
     "queries": ["author", "topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [

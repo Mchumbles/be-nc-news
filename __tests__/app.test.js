@@ -163,5 +163,89 @@ describe("/api/articles", () => {
           expect(body.comments).toHaveLength(0);
         });
     });
+    test("POST: 201 - post a new comment on the comments table, tied to the specified article_id", () => {
+      const newComment = {
+        username: "butter_bridge",
+        body: "This is a test comment",
+      };
+
+      return request(app)
+        .post("/api/articles/2/comments")
+        .send(newComment)
+        .expect(201)
+        .then((response) => {
+          const { newComment } = response.body;
+          expect(newComment).toMatchObject({
+            article_id: 2,
+            body: "This is a test comment",
+            comment_id: expect.any(Number),
+            created_at: expect.any(String),
+          });
+        });
+    });
+    test("POST: 404 - responds with an error when a comment post is attempted with an article_id that doesnt exist", () => {
+      const newComment = {
+        username: "butter_bridge",
+        body: "This is a test comment",
+      };
+      return request(app)
+        .post("/api/articles/9999/comments")
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("article does not exist");
+        });
+    });
+    test("POST: 400 - responds with an error when a comment post is attempted with an invalid article_id", () => {
+      const newComment = {
+        username: "butter_bridge",
+        body: "This is a test comment",
+      };
+      return request(app)
+        .post("/api/articles/not-an-id/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        });
+    });
+    test("POST: 404 - responds with an error when a comment post is attempted with sent missing object properties", () => {
+      const newComment = {
+        username: "butter_bridge",
+      };
+      return request(app)
+        .post("/api/articles/2/comments")
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request: missing required fields");
+        });
+    });
+    test("POST: 400 - responds with an error when a comment post is attempted with a body holding the wrong data type", () => {
+      const newComment = {
+        username: "butter_bridge",
+        body: 0,
+      };
+      return request(app)
+        .post("/api/articles/2/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request: wrong data type");
+        });
+    });
+    test("POST: 404 - responds with an error when a comment post is attempted with a username that doesnt exist in the users table", () => {
+      const newComment = {
+        username: "Lewis",
+        body: "This is a test comment",
+      };
+      return request(app)
+        .post("/api/articles/2/comments")
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("username not found");
+        });
+    });
   });
 });

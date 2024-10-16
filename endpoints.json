@@ -64,5 +64,18 @@
         "created_at": "2020-11-03T21:00:00.000Z"
       }
     }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "Patches votes joined with an article_id",
+    "exampleResponse": {
+      "comment": {
+        "article_id": 1,
+        "votes": 101,
+        "title": "Seafood substitutions are increasing",
+        "body": "Text from article...",
+        "author": "icellusedkars",
+        "created_at": "2020-07-09T20:11:00.000Z"
+      }
+    }
   }
 }

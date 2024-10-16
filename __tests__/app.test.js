@@ -247,5 +247,82 @@ describe("/api/articles", () => {
           expect(body.msg).toBe("username not found");
         });
     });
+    test("PATCH: 200 - increments the votes on the specified article", () => {
+      const voteUpdate = {
+        inc_votes: 1,
+      };
+
+      return request(app)
+        .patch("/api/articles/1")
+        .send(voteUpdate)
+        .expect(200)
+        .then((response) => {
+          const { updatedArticle } = response.body;
+          expect(updatedArticle).toMatchObject({
+            article_id: 1,
+            votes: 101,
+            title: "Living in the shadow of a great man",
+            body: "I find this existence challenging",
+            author: "butter_bridge",
+            created_at: "2020-07-09T20:11:00.000Z",
+          });
+          expect(updatedArticle.votes).toBe(100 + 1);
+        })
+        .then(() => {
+          const voteUpdate2 = {
+            inc_votes: -100,
+          };
+          return request(app)
+            .patch("/api/articles/1")
+            .send(voteUpdate2)
+            .expect(200)
+            .then((response) => {
+              const { updatedArticle } = response.body;
+              expect(updatedArticle).toMatchObject({
+                article_id: 1,
+                votes: 1,
+                title: "Living in the shadow of a great man",
+                body: "I find this existence challenging",
+                author: "butter_bridge",
+                created_at: "2020-07-09T20:11:00.000Z",
+              });
+              expect(updatedArticle.votes).toBe(101 - 100);
+            });
+        });
+    });
+    test("PATCH: 404 - responds with an error when an article patch is attempted on an article_id that does not exist", () => {
+      const voteUpdate = {
+        inc_votes: 1,
+      };
+      return request(app)
+        .patch("/api/articles/9999")
+        .send(voteUpdate)
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toEqual("article does not exist");
+        });
+    });
+    test("PATCH: 400 - responds with an error when an article patch is attempted with an invalid article_id ", () => {
+      const voteUpdate = {
+        inc_votes: "test string",
+      };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(voteUpdate)
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toEqual("bad request");
+        });
+    });
+    test("PATCH: 400 - responds with an error when an article patch is attempted with missing inc_votes data ", () => {
+      const voteUpdate = {};
+      return request(app)
+        .patch("/api/articles/1")
+        .send(voteUpdate)
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toEqual("bad request");
+        });
+    });
   });
 });

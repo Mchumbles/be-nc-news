@@ -1,6 +1,7 @@
 const {
   selectArticleById,
   selectArticles,
+  updateArticleVotesById,
 } = require("../models/articles-models");
 const { selectArticleComments } = require("../models/comments-models");
 const db = require("../db/connection");
@@ -40,6 +41,19 @@ exports.getArticleComments = (request, response, next) => {
     .then((results) => {
       const comments = results[0];
       response.status(200).send({ comments: comments });
+    })
+    .catch((error) => {
+      next(error);
+    });
+};
+
+exports.patchArticleVotesById = (request, response, next) => {
+  const { article_id } = request.params;
+  const { inc_votes } = request.body;
+
+  return updateArticleVotesById(inc_votes, article_id)
+    .then((updatedArticle) => {
+      response.status(200).send({ updatedArticle: updatedArticle });
     })
     .catch((error) => {
       next(error);

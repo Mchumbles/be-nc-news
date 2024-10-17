@@ -8,8 +8,8 @@ const db = require("../db/connection");
 const { request } = require("express");
 
 exports.getArticles = (request, response, next) => {
-  const { sort_by } = request.query;
-  selectArticles(sort_by)
+  const { sort_by, order } = request.query;
+  selectArticles(sort_by, order)
     .then((articles) => {
       response.status(200).send({ articles });
     })

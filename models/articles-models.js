@@ -1,10 +1,14 @@
 const db = require("../db/connection");
 
-exports.selectArticles = (sort_by = "created_at") => {
+exports.selectArticles = (sort_by = "created_at", order = "desc") => {
   const validSortBys = ["created_at", "votes", "title", "author", "topic"];
 
   if (!validSortBys.includes(sort_by)) {
     return Promise.reject({ status: 400, msg: "Invalid sort_by value" });
+  }
+
+  if (order !== "desc" && order !== "asc") {
+    return Promise.reject({ status: 400, msg: "Invalid order value" });
   }
 
   let queryStr = `
@@ -19,7 +23,7 @@ exports.selectArticles = (sort_by = "created_at") => {
   FROM articles
   LEFT JOIN comments ON articles.article_id = comments.article_id
   GROUP BY articles.article_id
-  ORDER BY ${sort_by} DESC;
+  ORDER BY ${sort_by} ${order};
 `;
   return db.query(queryStr).then(({ rows }) => {
     return rows;

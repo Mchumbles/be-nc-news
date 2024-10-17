@@ -81,7 +81,28 @@ describe("/api/articles", () => {
           expect(response.body.msg).toBe("bad request");
         });
     });
+    test("GET: 200 - returns an article via the article_id, which should now also include comments", () => {
+      return request(app)
+        .get("/api/articles/6")
+        .expect(200)
+        .then(({ body }) => {
+          const article = body.article;
+          expect(article).toMatchObject({
+            article_id: 6,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            author: "icellusedkars",
+            body: "Delicious tin of cat food",
+            comment_count: 1,
+            created_at: "2020-10-18T01:00:00.000Z",
+            title: "A",
+            topic: "mitch",
+            votes: 0,
+          });
+        });
+    });
   });
+
   describe("/api/articles", () => {
     test("GET: 200 - responds with an articles array of article objects, sorted by created_at DESC", () => {
       return request(app)

@@ -325,31 +325,64 @@ describe("/api/articles", () => {
         });
     });
   });
-  describe("/api/comments", () => {
-    describe("/api/comments/:comment_id", () => {
-      test("DELETE: 204 - responds by deleteing a comment via its comment_id and returning no content", () => {
-        return request(app)
-          .delete("/api/comments/1")
-          .expect(204)
-          .then((response) => {
-            expect(response.body).toEqual({});
+});
+
+describe("/api/comments", () => {
+  describe("/api/comments/:comment_id", () => {
+    test("DELETE: 204 - responds by deleteing a comment via its comment_id and returning no content", () => {
+      return request(app)
+        .delete("/api/comments/1")
+        .expect(204)
+        .then((response) => {
+          expect(response.body).toEqual({});
+        });
+    });
+    test("DELETE: 404 - returns an error if the comment_id doesn't exist", () => {
+      return request(app)
+        .delete("/api/comments/9999")
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toEqual("comment does not exist");
+        });
+    });
+    test("DELETE: 400 - returns an error if the comment_id is invalid", () => {
+      return request(app)
+        .delete("/api/comments/not-valid-id")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toEqual("bad request");
+        });
+    });
+  });
+});
+
+describe("/api/users", () => {
+  describe("/api/users", () => {
+    test("GET: 200 - return an array of users objects", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then((result) => {
+          const users = result.body.users;
+          users.forEach((user) => {
+            expect(typeof user.username).toBe("string");
+            expect(typeof user.name).toBe("string");
+            expect(typeof user.avatar_url).toBe("string");
           });
-      });
-      test("DELETE: 404 - returns an error if the comment_id doesn't exist", () => {
-        return request(app)
-          .delete("/api/comments/9999")
-          .expect(404)
-          .then((response) => {
-            expect(response.body.msg).toEqual("comment does not exist");
+        });
+    });
+    test("GET: 404 - responds with a custom error when a search is attempted for all users but that endpoint has no data'", () => {
+      return db.query("DELETE FROM comments").then(() => {
+        return db.query("DELETE FROM articles").then(() => {
+          return db.query("DELETE FROM users").then(() => {
+            return request(app)
+              .get("/api/users")
+              .expect(404)
+              .then((response) => {
+                expect(response.body.msg).toBe("no users available");
+              });
           });
-      });
-      test("DELETE: 400 - returns an error if the comment_id is invalid", () => {
-        return request(app)
-          .delete("/api/comments/not-valid-id")
-          .expect(400)
-          .then((response) => {
-            expect(response.body.msg).toEqual("bad request");
-          });
+        });
       });
     });
   });

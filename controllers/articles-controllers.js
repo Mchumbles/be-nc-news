@@ -8,10 +8,16 @@ const db = require("../db/connection");
 const { request } = require("express");
 
 exports.getArticles = (request, response, next) => {
-  const { sort_by, order } = request.query;
-  selectArticles(sort_by, order)
+  const { sort_by, order, topic } = request.query;
+
+  selectArticles(sort_by, order, topic)
     .then((articles) => {
-      response.status(200).send({ articles });
+      if (articles.length === 0) {
+        console.log(articles.length);
+        response.status(204).send();
+      } else {
+        response.status(200).send({ articles });
+      }
     })
     .catch((error) => {
       next(error);

@@ -103,7 +103,7 @@ describe("/api/articles", () => {
           expect(articles).toBeSortedBy("created_at", { descending: true });
         });
     });
-    describe("/api/articles (sorting queries)", () => {
+    describe("/api/articles (sorting and order queries)", () => {
       test("GET: 200 - take a sort-by query and respond with articles sorted by a given coloumn name that isnt the default", () => {
         return request(app)
           .get("/api/articles?sort_by=title")
@@ -154,6 +154,26 @@ describe("/api/articles", () => {
             expect(body.msg).toBe("Invalid order value");
           });
       });
+    });
+    describe("/api/articles (topic queries", () => {
+      test("GET: 200 - take the topic query that returns articles filtered by the topic", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch")
+          .expect(200)
+          .then(({ body }) => {
+            body.articles.forEach((article) => {
+              expect(article.topic).toEqual("mitch");
+            });
+          });
+      });
+    });
+    test("GET: 204 - returns an empty array when topic does not exist", () => {
+      return request(app)
+        .get("/api/articles?topic=invalid")
+        .expect(204)
+        .then((response) => {
+          expect(response.body).toEqual({});
+        });
     });
     describe("/api/articles/:article_id/comments", () => {
       test("GET: 200 - responds with an array of comments joined with the requested article_id, sorted by created_at, decending", () => {

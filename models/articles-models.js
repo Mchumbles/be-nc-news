@@ -1,6 +1,6 @@
 const db = require("../db/connection");
 
-exports.selectArticles = (sort_by = "created_at", order = "desc") => {
+exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
   const validSortBys = ["created_at", "votes", "title", "author", "topic"];
 
   if (!validSortBys.includes(sort_by)) {
@@ -10,7 +10,6 @@ exports.selectArticles = (sort_by = "created_at", order = "desc") => {
   if (order !== "desc" && order !== "asc") {
     return Promise.reject({ status: 400, msg: "Invalid order value" });
   }
-
   let queryStr = `
   SELECT articles.author, 
          articles.title, 
@@ -22,10 +21,18 @@ exports.selectArticles = (sort_by = "created_at", order = "desc") => {
          CAST(COUNT(comments.article_id) AS INTEGER) AS comment_count
   FROM articles
   LEFT JOIN comments ON articles.article_id = comments.article_id
-  GROUP BY articles.article_id
-  ORDER BY ${sort_by} ${order};
 `;
-  return db.query(queryStr).then(({ rows }) => {
+
+  const queryParams = [];
+  if (topic) {
+    queryStr += `WHERE articles.topic = $1`;
+    queryParams.push(topic);
+  }
+  queryStr += `
+  GROUP BY articles.article_id
+  ORDER BY ${sort_by} ${order}`;
+
+  return db.query(queryStr, queryParams).then(({ rows }) => {
     return rows;
   });
 };

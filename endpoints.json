@@ -11,9 +11,10 @@
   },
   "GET /api/articles": {
     "description": "serves an array of all articles. Default sort_by is created_at decending",
-    "queries": ["sort_by", "order"],
+    "queries": ["sort_by", "order", "topic"],
     "sort_by_queries": ["created_at", "votes", "title", "author", "topic"],
     "order_queries": ["asc", "desc"],
+    "topic_queries": "any existing topic in database",
     "exampleResponse": {
       "articles": [
         {

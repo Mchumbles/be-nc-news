@@ -325,4 +325,32 @@ describe("/api/articles", () => {
         });
     });
   });
+  describe("/api/comments", () => {
+    describe("/api/comments/:comment_id", () => {
+      test("DELETE: 204 - responds by deleteing a comment via its comment_id and returning no content", () => {
+        return request(app)
+          .delete("/api/comments/1")
+          .expect(204)
+          .then((response) => {
+            expect(response.body).toEqual({});
+          });
+      });
+      test("DELETE: 404 - returns an error if the comment_id doesn't exist", () => {
+        return request(app)
+          .delete("/api/comments/9999")
+          .expect(404)
+          .then((response) => {
+            expect(response.body.msg).toEqual("comment does not exist");
+          });
+      });
+      test("DELETE: 400 - returns an error if the comment_id is invalid", () => {
+        return request(app)
+          .delete("/api/comments/not-valid-id")
+          .expect(400)
+          .then((response) => {
+            expect(response.body.msg).toEqual("bad request");
+          });
+      });
+    });
+  });
 });

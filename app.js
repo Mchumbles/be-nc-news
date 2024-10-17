@@ -7,7 +7,10 @@ const {
   getArticleComments,
   patchArticleVotesById,
 } = require("./controllers/articles-controllers");
-const { postArticleComment } = require("./controllers/comments-controllers");
+const {
+  postArticleComment,
+  deleteCommentById,
+} = require("./controllers/comments-controllers");
 const endpoints = require("./endpoints.json");
 
 app.use(express.json());
@@ -27,6 +30,8 @@ app.get("/api/articles/:article_id/comments", getArticleComments);
 app.post("/api/articles/:article_id/comments", postArticleComment);
 
 app.patch("/api/articles/:article_id", patchArticleVotesById);
+
+app.delete("/api/comments/:comment_id", deleteCommentById);
 
 //ERRORS ***************************************************************
 

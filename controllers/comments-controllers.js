@@ -21,7 +21,7 @@ exports.deleteCommentById = (request, response, next) => {
 
   return removeCommentById(comment_id)
     .then((emptyObject) => {
-      response.status(204).send(emptyObject);
+      response.status(204).end();
     })
     .catch((error) => {
       next(error);

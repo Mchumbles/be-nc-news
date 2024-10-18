@@ -412,12 +412,7 @@ describe("/api/articles", () => {
 describe("/api/comments", () => {
   describe("/api/comments/:comment_id", () => {
     test("DELETE: 204 - responds by deleteing a comment via its comment_id and returning no content", () => {
-      return request(app)
-        .delete("/api/comments/1")
-        .expect(204)
-        .then((response) => {
-          expect(response.body).toEqual({});
-        });
+      return request(app).delete("/api/comments/1").expect(204);
     });
     test("DELETE: 404 - returns an error if the comment_id doesn't exist", () => {
       return request(app)

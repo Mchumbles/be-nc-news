@@ -207,6 +207,7 @@ describe("/api/articles", () => {
           .expect(200)
           .then((response) => {
             const comments = response.body.comments;
+            expect(comments.length).toEqual(11);
             comments.forEach((comment) => {
               expect(typeof comment.comment_id).toBe("number");
               expect(typeof comment.votes).toBe("number");
@@ -416,7 +417,6 @@ describe("/api/comments", () => {
         .expect(204)
         .then((response) => {
           expect(response.body).toEqual({});
-
         });
     });
     test("DELETE: 404 - returns an error if the comment_id doesn't exist", () => {

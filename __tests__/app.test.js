@@ -441,6 +441,8 @@ describe("/api/users", () => {
         .expect(200)
         .then((result) => {
           const users = result.body.users;
+          console.log(users);
+          expect(users.length).toEqual(4);
           users.forEach((user) => {
             expect(typeof user.username).toBe("string");
             expect(typeof user.name).toBe("string");
@@ -448,19 +450,19 @@ describe("/api/users", () => {
           });
         });
     });
-    test("GET: 404 - responds with a custom error when a search is attempted for all users but that endpoint has no data'", () => {
-      return db.query("DELETE FROM comments").then(() => {
-        return db.query("DELETE FROM articles").then(() => {
-          return db.query("DELETE FROM users").then(() => {
-            return request(app)
-              .get("/api/users")
-              .expect(404)
-              .then((response) => {
-                expect(response.body.msg).toBe("no users available");
-              });
-          });
+    test("GET: 200 - returns an empty array when no users exist", () => {
+      return db
+        .query("DELETE FROM comments")
+        .then(() => db.query("DELETE FROM articles"))
+        .then(() => db.query("DELETE FROM users"))
+        .then(() => {
+          return request(app)
+            .get("/api/users")
+            .expect(200)
+            .then((response) => {
+              expect(response.body.users).toEqual([]);
+            });
         });
-      });
     });
   });
 });

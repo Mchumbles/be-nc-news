@@ -416,6 +416,7 @@ describe("/api/comments", () => {
         .expect(204)
         .then((response) => {
           expect(response.body).toEqual({});
+
         });
     });
     test("DELETE: 404 - returns an error if the comment_id doesn't exist", () => {

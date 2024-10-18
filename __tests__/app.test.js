@@ -302,7 +302,7 @@ describe("/api/articles", () => {
           expect(response.body.msg).toEqual("article does not exist");
         });
     });
-    test("PATCH: 400 - responds with an error when an article patch is attempted with an invalid article_id ", () => {
+    test("PATCH: 400 - responds with an error when an article patch is attempted with an invalid inc_votes datatype ", () => {
       const voteUpdate = {
         inc_votes: "test string",
       };

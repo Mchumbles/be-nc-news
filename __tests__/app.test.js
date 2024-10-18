@@ -40,14 +40,17 @@ describe("/api/articles/:article_id", () => {
         .get("/api/articles/1")
         .expect(200)
         .then(({ body }) => {
-          expect(typeof body.article.author).toBe("string");
-          expect(typeof body.article.title).toBe("string");
-          expect(typeof body.article.article_id).toBe("number");
-          expect(typeof body.article.body).toBe("string");
-          expect(typeof body.article.topic).toBe("string");
-          expect(typeof body.article.created_at).toBe("string");
-          expect(typeof body.article.votes).toBe("number");
-          expect(typeof body.article.article_img_url).toBe("string");
+          expect(body.article).toEqual({
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 100,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          });
         });
     });
     test("GET: 404 - responds with a custom error when a search is attempted for an article_id that does not exist", () => {

@@ -441,7 +441,6 @@ describe("/api/users", () => {
         .expect(200)
         .then((result) => {
           const users = result.body.users;
-          console.log(users);
           expect(users.length).toEqual(4);
           users.forEach((user) => {
             expect(typeof user.username).toBe("string");

@@ -15,7 +15,7 @@ app.get("/api", (request, response) => {
 
 app.use("/api/topics", topicsRouter);
 app.use("/api/articles", articlesRouter);
-app.use("/api", commentsRouter);
+app.use("/api/comments", commentsRouter);
 app.use("/api/users", usersRouter);
 
 //ERRORS ***************************************************************

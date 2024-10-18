@@ -383,7 +383,7 @@ describe("/api/articles", () => {
             expect(response.body.msg).toEqual("article does not exist");
           });
       });
-      test("PATCH: 400 - responds with an error when an article patch is attempted with an invalid article_id ", () => {
+      test("PATCH: 400 - responds with an error when an article patch is attempted with an invalid inc_votes data ", () => {
         const voteUpdate = {
           inc_votes: "test string",
         };
@@ -425,6 +425,60 @@ describe("/api/comments", () => {
     test("DELETE: 400 - returns an error if the comment_id is invalid", () => {
       return request(app)
         .delete("/api/comments/not-valid-id")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toEqual("bad request");
+        });
+    });
+    test("PATCH: 200 - increments the votes on the specified comment", () => {
+      const voteUpdate = {
+        inc_votes: 1,
+      };
+      return request(app)
+        .patch("/api/comments/1")
+        .send(voteUpdate)
+        .expect(200)
+        .then((result) => {
+          updatedComment = result.body.updatedComment;
+          expect(updatedComment).toEqual({
+            comment_id: 1,
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            article_id: 9,
+            author: "butter_bridge",
+            votes: 17,
+            created_at: "2020-04-06T12:17:00.000Z",
+          });
+        });
+    });
+    test("PATCH: 404 - responds with an error when a comment patch is attempted on an comment_id that does not exist", () => {
+      const voteUpdate = {
+        inc_votes: 1,
+      };
+      return request(app)
+        .patch("/api/comments/9999")
+        .send(voteUpdate)
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toEqual("comment does not exist");
+        });
+    });
+    test("PATCH: 400 - responds with an error when a comment patch is attempted with an invalid inc_votes data ", () => {
+      const voteUpdate = {
+        inc_votes: "test string",
+      };
+      return request(app)
+        .patch("/api/comments/1")
+        .send(voteUpdate)
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toEqual("bad request");
+        });
+    });
+    test("PATCH: 400 - responds with an error when a comment patch is attempted with missing inc_votes data ", () => {
+      const voteUpdate = {};
+      return request(app)
+        .patch("/api/comments/1")
+        .send(voteUpdate)
         .expect(400)
         .then((response) => {
           expect(response.body.msg).toEqual("bad request");

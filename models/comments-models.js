@@ -67,3 +67,26 @@ exports.removeCommentById = (comment_id) => {
         .then(() => {});
     });
 };
+
+exports.updateCommentVotesById = (comment_id, inc_votes) => {
+  if (inc_votes === undefined) {
+    return Promise.reject({ status: 400, msg: "bad request" });
+  }
+  console.log("in the model");
+  return db
+    .query(
+      `UPDATE comments
+       SET votes = votes + $1
+       WHERE comment_id = $2
+       RETURNING *;`,
+      [inc_votes, comment_id]
+    )
+    .then((result) => {
+      console.log(result);
+      if (result.rows.length === 0) {
+        console.log("IN the if");
+        return Promise.reject({ status: 404, msg: "comment does not exist" });
+      }
+      return result.rows[0];
+    });
+};

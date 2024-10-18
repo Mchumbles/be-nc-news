@@ -11,7 +11,10 @@
   },
   "GET /api/articles": {
     "description": "serves an array of all articles. Default sort_by is created_at decending",
-    "queries": ["author", "topic", "sort_by", "order"],
+    "queries": ["sort_by", "order", "topic"],
+    "sort_by_queries": ["created_at", "votes", "title", "author", "topic"],
+    "order_queries": ["asc", "desc"],
+    "topic_queries": "any existing topic in database",
     "exampleResponse": {
       "articles": [
         {
@@ -37,7 +40,8 @@
         "topic": "cooking",
         "created_at": "2018-05-30T15:59:13.341Z",
         "votes": 0,
-        "article_img_url": "http://example.com/image.jpg"
+        "article_img_url": "http://example.com/image.jpg",
+        "comment_count": 1
       }
     }
   },
@@ -52,6 +56,51 @@
         "votes": 0,
         "created_at": "2020-11-03T21:00:00.000Z"
       }
+    }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "posts a comment joined with an article_id",
+    "exampleResponse": {
+      "comment": {
+        "article_id": 2,
+        "body": "I couldn't agree more",
+        "comment_id": 10,
+        "created_at": "2020-11-03T21:00:00.000Z"
+      }
+    }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "Patches votes joined with an article_id",
+    "exampleResponse": {
+      "comment": {
+        "article_id": 1,
+        "votes": 101,
+        "title": "Seafood substitutions are increasing",
+        "body": "Text from article...",
+        "author": "icellusedkars",
+        "created_at": "2020-07-09T20:11:00.000Z"
+      }
+    }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "Deletes a comment by its comment_id",
+    "exampleResponses": {
+      "204": {
+        "description": "No Content - Successfully deleted the comment."
+      }
+    }
+  },
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "queries": [],
+    "exampleResponse": {
+      "users": [
+        {
+          "username": "icellusedkars",
+          "name": "sam",
+          "avatar_url": "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4"
+        }
+      ]
     }
   }
 }

@@ -464,4 +464,27 @@ describe("/api/users", () => {
         });
     });
   });
+  describe("/api/users/:username", () => {
+    test("GET: 200 - returns a user object by getting username", () => {
+      return request(app)
+        .get("/api/users/lurker")
+        .expect(200)
+        .then((result) => {
+          expect(result.body.user).toEqual({
+            avatar_url:
+              "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+            name: "do_nothing",
+            username: "lurker",
+          });
+        });
+    });
+    test("GET: 200 - returns an empty object when username is not found", () => {
+      return request(app)
+        .get("/api/users/nonexistentuser")
+        .expect(200)
+        .then((result) => {
+          expect(result.body.msg).toEqual("user not found");
+        });
+    });
+  });
 });

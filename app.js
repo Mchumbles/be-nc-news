@@ -2,10 +2,10 @@ const express = require("express");
 const app = express();
 const endpoints = require("./endpoints.json");
 
-const topicsRouter = require("./routes/topics");
-const articlesRouter = require("./routes/articles");
-const commentsRouter = require("./routes/comments");
-const usersRouter = require("./routes/users");
+const topicsRouter = require("./routes/routes-topics");
+const articlesRouter = require("./routes/routes-articles");
+const commentsRouter = require("./routes/routes-comments");
+const usersRouter = require("./routes/routes-users");
 
 app.use(express.json());
 

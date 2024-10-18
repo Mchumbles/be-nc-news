@@ -13,7 +13,6 @@ exports.getArticles = (request, response, next) => {
   selectArticles(sort_by, order, topic)
     .then((articles) => {
       if (articles.length === 0) {
-        console.log(articles.length);
         response.status(204).send();
       } else {
         response.status(200).send({ articles });

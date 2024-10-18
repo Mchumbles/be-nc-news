@@ -2,6 +2,7 @@ const { selectArticleById } = require("../models/articles-models");
 const {
   insertNewComment,
   removeCommentById,
+  updateCommentVotesById,
 } = require("../models/comments-models");
 
 exports.postArticleComment = (request, response, next) => {
@@ -20,8 +21,21 @@ exports.deleteCommentById = (request, response, next) => {
   const { comment_id } = request.params;
 
   return removeCommentById(comment_id)
-    .then((emptyObject) => {
+    .then(() => {
       response.status(204).end();
+    })
+    .catch((error) => {
+      next(error);
+    });
+};
+
+exports.patchCommentById = (request, response, next) => {
+  const { comment_id } = request.params;
+  const { inc_votes } = request.body;
+  console.log("IN CONTROLLER");
+  return updateCommentVotesById(comment_id, inc_votes)
+    .then((updatedComment) => {
+      response.status(200).send({ updatedComment: updatedComment });
     })
     .catch((error) => {
       next(error);

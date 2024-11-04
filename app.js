@@ -9,6 +9,10 @@ const usersRouter = require("./routes/routes-users");
 
 app.use(express.json());
 
+const cors = require("cors");
+
+app.use(cors());
+
 app.get("/api", (request, response) => {
   response.status(200).send({ endpoints: endpoints });
 });

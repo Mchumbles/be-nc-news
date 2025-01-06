@@ -450,6 +450,26 @@ describe("/api/comments", () => {
           });
         });
     });
+    test("PATCH: 200 - decrements the votes on the specified comment", () => {
+      const voteUpdate = {
+        inc_votes: -1,
+      };
+      return request(app)
+        .patch("/api/comments/1")
+        .send(voteUpdate)
+        .expect(200)
+        .then((result) => {
+          const updatedComment = result.body.updatedComment;
+          expect(updatedComment).toEqual({
+            comment_id: 1,
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            article_id: 9,
+            author: "butter_bridge",
+            votes: 15,
+            created_at: "2020-04-06T12:17:00.000Z",
+          });
+        });
+    });
     test("PATCH: 404 - responds with an error when a comment patch is attempted on an comment_id that does not exist", () => {
       const voteUpdate = {
         inc_votes: 1,

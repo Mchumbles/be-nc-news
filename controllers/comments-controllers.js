@@ -32,7 +32,6 @@ exports.deleteCommentById = (request, response, next) => {
 exports.patchCommentById = (request, response, next) => {
   const { comment_id } = request.params;
   const { inc_votes } = request.body;
-  console.log("IN CONTROLLER");
   return updateCommentVotesById(comment_id, inc_votes)
     .then((updatedComment) => {
       response.status(200).send({ updatedComment: updatedComment });

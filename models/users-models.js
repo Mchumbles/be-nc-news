@@ -12,7 +12,7 @@ exports.selectUserByUsername = (username) => {
       `
     SELECT * FROM users
     WHERE username = $1`,
-      [username]
+      [username],
     )
     .then((user) => {
       return user.rows[0];

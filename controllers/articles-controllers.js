@@ -2,6 +2,7 @@ const {
   selectArticleById,
   selectArticles,
   updateArticleVotesById,
+  insertNewArticle,
 } = require("../models/articles-models");
 const { selectArticleComments } = require("../models/comments-models");
 const db = require("../db/connection");
@@ -59,6 +60,16 @@ exports.patchArticleVotesById = (request, response, next) => {
   return updateArticleVotesById(inc_votes, article_id)
     .then((updatedArticle) => {
       response.status(200).send({ updatedArticle: updatedArticle });
+    })
+    .catch((error) => {
+      next(error);
+    });
+};
+
+exports.postArticle = (request, response, next) => {
+  return insertNewArticle(request.body)
+    .then((newPost) => {
+      response.status(201).send({ newPost: newPost });
     })
     .catch((error) => {
       next(error);

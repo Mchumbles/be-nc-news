@@ -74,3 +74,66 @@ exports.updateArticleVotesById = (inc_votes, article_id) => {
       return result.rows[0];
     });
 };
+
+exports.insertNewArticle = (newPost) => {
+  const { title, author, body, topic, article_img_url } = newPost;
+
+  if (
+    author === undefined ||
+    body === undefined ||
+    title === undefined ||
+    topic === undefined
+  ) {
+    return Promise.reject({
+      status: 400,
+      msg: "bad request: missing required fields",
+    });
+  }
+
+  if (
+    typeof author !== "string" ||
+    typeof body !== "string" ||
+    typeof title !== "string" ||
+    typeof topic !== "string"
+  ) {
+    return Promise.reject({
+      status: 400,
+      msg: "bad request: wrong data type",
+    });
+  }
+
+  return db
+    .query("SELECT * FROM topics WHERE slug = $1", [topic])
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "topic not found",
+        });
+      }
+
+      return db.query("SELECT * FROM users WHERE username = $1", [author]);
+    })
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "user not found",
+        });
+      }
+      const imageUrl =
+        article_img_url ||
+        "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700";
+
+      const query = `
+        INSERT INTO articles (author, body, title, topic, article_img_url)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING *;
+      `;
+
+      return db.query(query, [author, body, title, topic, imageUrl]);
+    })
+    .then((result) => {
+      return result.rows[0];
+    });
+};

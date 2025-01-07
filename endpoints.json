@@ -45,6 +45,18 @@
       }
     }
   },
+  "POST /api/articles": {
+    "article": {
+      "article_id": 1,
+      "title": "Understanding Node.js",
+      "author": "butter_bridge",
+      "body": "This article explains the basics of Node.js and its ecosystem.",
+      "topic": "programming",
+      "created_at": "2022-01-01T00:00:00.000Z",
+      "votes": 0,
+      "article_img_url": "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700"
+    }
+  },
   "GET /api/articles/:article_id/comments": {
     "description": "retrieves all comments joined to an article_id. Default sort_by is created_at decending",
     "exampleResponse": {

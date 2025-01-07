@@ -180,7 +180,7 @@ describe("/api/articles", () => {
           });
       });
     });
-    describe("/api/articles (topic queries", () => {
+    describe("/api/articles (topic queries)", () => {
       test("GET: 200 - take the topic query that returns articles filtered by the topic", () => {
         return request(app)
           .get("/api/articles?topic=mitch")
@@ -198,6 +198,96 @@ describe("/api/articles", () => {
         .expect(204)
         .then((response) => {
           expect(response.body).toEqual({});
+        });
+    });
+    test("POST: 201 - should post a new article on the articles table", () => {
+      const newPost = {
+        author: "butter_bridge",
+        title: "Test",
+        body: "This is a test article",
+        topic: "cats",
+      };
+      return request(app)
+        .post("/api/articles")
+        .send(newPost)
+        .expect(201)
+        .then((response) => {
+          const { newPost } = response.body;
+          expect(newPost).toMatchObject({
+            article_id: expect.any(Number),
+            title: "Test",
+            topic: "cats",
+            author: "butter_bridge",
+            body: "This is a test article",
+            created_at: expect.any(String),
+            votes: 0,
+            article_img_url:
+              "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+          });
+        });
+    });
+    test("POST: 400 - should return error if required fields are missing", () => {
+      const newPost = {
+        author: "butter_bridge",
+        body: "This is a test article",
+        topic: "cats",
+      };
+      return request(app)
+        .post("/api/articles")
+        .send(newPost)
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe(
+            "bad request: missing required fields",
+          );
+        });
+    });
+    test("POST: 400 - should return error for invalid data types", () => {
+      const newPost = {
+        author: "butter_bridge",
+        title: "Test",
+        body: 123,
+        topic: "cats",
+      };
+
+      return request(app)
+        .post("/api/articles")
+        .send(newPost)
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("bad request: wrong data type");
+        });
+    });
+    test("POST: 404 - should return error if topic does not exist", () => {
+      const newPost = {
+        author: "butter_bridge",
+        title: "Test",
+        body: "This is a test article",
+        topic: "nonexistent-topic",
+      };
+
+      return request(app)
+        .post("/api/articles")
+        .send(newPost)
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("topic not found");
+        });
+    });
+    test("POST: 404 - should return error if author does not exist", () => {
+      const newPost = {
+        author: "nonexistent-user",
+        title: "Test",
+        body: "This is a test article",
+        topic: "cats",
+      };
+
+      return request(app)
+        .post("/api/articles")
+        .send(newPost)
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("user not found");
         });
     });
     describe("/api/articles/:article_id/comments", () => {

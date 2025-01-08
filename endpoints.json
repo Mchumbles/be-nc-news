@@ -9,6 +9,13 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+  "POST /api/topics": {
+    "description": "Creates a new topic with a unique slug and a description.",
+    "exampleRequest": {
+      "slug": "new-topic",
+      "description": "A brief description of the new topic."
+    }
+  },
   "GET /api/articles": {
     "description": "Serves an array of all articles, with pagination support. Defaults to sorting by 'created_at' in descending order.",
     "queries": ["sort_by", "order", "topic", "limit", "p"],

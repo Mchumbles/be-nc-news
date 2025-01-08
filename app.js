@@ -33,7 +33,7 @@ app.use((err, request, response, next) => {
 
 app.use((err, request, response, next) => {
   if (err.code === "23503" && err.detail.includes("article_id")) {
-    response.status(404).send({ msg: "article does not exist" });
+    response.status(404).send({ msg: "article not found" });
   }
   next(err);
 });

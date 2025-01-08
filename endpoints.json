@@ -60,16 +60,20 @@
     }
   },
   "GET /api/articles/:article_id/comments": {
-    "description": "retrieves all comments joined to an article_id. Default sort_by is created_at decending",
+    "description": "Returns an array of comments for a specified article, with pagination support.",
+    "queries": ["limit", "p"],
     "exampleResponse": {
-      "comment": {
-        "comment_id": 5,
-        "body": "'I hate streaming noses'",
-        "article_id": 1,
-        "author": "icellusedkars",
-        "votes": 0,
-        "created_at": "2020-11-03T21:00:00.000Z"
-      }
+      "comments": [
+        {
+          "comment_id": 1,
+          "body": "Great article!",
+          "article_id": 1,
+          "author": "weegembump",
+          "votes": 0,
+          "created_at": "2020-07-01T10:00:00.000Z"
+        }
+      ],
+      "total_count": 100
     }
   },
   "POST /api/articles/:article_id/comments": {

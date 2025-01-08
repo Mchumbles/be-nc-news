@@ -74,7 +74,7 @@ describe("/api/articles", () => {
         .get("/api/articles/9000")
         .expect(404)
         .then((response) => {
-          expect(response.body.msg).toBe("article does not exist");
+          expect(response.body.msg).toBe("article not found");
         });
     });
     test("GET: 400 - responds with an error when a search is attempted with an invalid id", () => {
@@ -293,7 +293,7 @@ describe("/api/articles", () => {
     describe("/api/articles/:article_id/comments", () => {
       test("GET: 200 - responds with an array of comments joined with the requested article_id, sorted by created_at, decending", () => {
         return request(app)
-          .get("/api/articles/1/comments")
+          .get("/api/articles/1/comments?limit=20&p=1")
           .expect(200)
           .then((response) => {
             const comments = response.body.comments;
@@ -314,7 +314,7 @@ describe("/api/articles", () => {
           .get("/api/articles/9999/comments")
           .expect(404)
           .then(({ body }) => {
-            expect(body.msg).toBe("article does not exist");
+            expect(body.msg).toBe("article not found");
           });
       });
       test("GET: 400 - responds with an error when a search is attempted with an invalid id", () => {
@@ -364,7 +364,7 @@ describe("/api/articles", () => {
           .send(newComment)
           .expect(404)
           .then(({ body }) => {
-            expect(body.msg).toBe("article does not exist");
+            expect(body.msg).toBe("article not found");
           });
       });
       test("POST: 400 - responds with an error when a comment post is attempted with an invalid article_id", () => {
@@ -470,7 +470,7 @@ describe("/api/articles", () => {
           .send(voteUpdate)
           .expect(404)
           .then((response) => {
-            expect(response.body.msg).toEqual("article does not exist");
+            expect(response.body.msg).toEqual("article not found");
           });
       });
       test("PATCH: 400 - responds with an error when an article patch is attempted with an invalid inc_votes data ", () => {
@@ -493,6 +493,64 @@ describe("/api/articles", () => {
           .expect(400)
           .then((response) => {
             expect(response.body.msg).toEqual("bad request");
+          });
+      });
+    });
+    describe("GET /api/articles/:article_id/comments (pagination)", () => {
+      test("200: returns paginated comments when valid pagination parameters are provided", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=5&p=1")
+          .expect(200)
+          .then(({ body }) => {
+            const { comments, total_count } = body;
+
+            expect(comments).toHaveLength(5);
+            expect(total_count).toBeGreaterThan(0);
+          });
+      });
+
+      test("200: returns an empty array when there are no comments for the article", () => {
+        return request(app)
+          .get("/api/articles/2/comments?limit=5&p=1")
+          .expect(200)
+          .then(({ body }) => {
+            const { comments, total_count } = body;
+
+            expect(comments).toEqual([]);
+            expect(total_count).toBe(0);
+          });
+      });
+
+      test("400: returns an error when invalid pagination parameters are provided", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=-5&p=-1")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid pagination parameters");
+          });
+      });
+
+      test("200: returns the correct comments for the second page", () => {
+        return request(app)
+          .get("/api/articles/1/comments?limit=5&p=2")
+          .expect(200)
+          .then(({ body }) => {
+            const { comments, total_count } = body;
+            expect(total_count).toBe(11);
+            expect(comments).toHaveLength(5);
+            expect(comments[0].comment_id).toBeGreaterThanOrEqual(6);
+            expect(
+              comments[comments.length - 1].comment_id,
+            ).toBeLessThanOrEqual(10);
+          });
+      });
+
+      test("404: returns an error when article_id does not exist", () => {
+        return request(app)
+          .get("/api/articles/999999/comments")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("article not found");
           });
       });
     });

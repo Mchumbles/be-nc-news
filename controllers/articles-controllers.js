@@ -4,7 +4,10 @@ const {
   updateArticleVotesById,
   insertNewArticle,
 } = require("../models/articles-models");
-const { selectArticleComments } = require("../models/comments-models");
+const {
+  selectArticleComments,
+  selectTotalComments,
+} = require("../models/comments-models");
 const db = require("../db/connection");
 const { request } = require("express");
 
@@ -25,38 +28,47 @@ exports.getArticles = (request, response, next) => {
     .then(({ articles, total_count }) => {
       response.status(200).send({ articles, total_count });
     })
-    .catch((error) => {
-      next(error);
-    });
+    .catch(next);
 };
 
 exports.getArticleById = (request, response, next) => {
   const { article_id } = request.params;
+
   selectArticleById(article_id)
     .then((article) => {
       response.status(200).send({ article });
     })
-    .catch((error) => {
-      next(error);
-    });
+    .catch(next);
 };
 
 exports.getArticleComments = (request, response, next) => {
   const { article_id } = request.params;
+  const { limit = 10, p = 1 } = request.query;
 
-  const promises = [selectArticleComments(article_id)];
-
-  if (article_id) {
-    promises.push(selectArticleById(article_id));
+  if (isNaN(limit) || isNaN(p) || limit < 1 || p < 1) {
+    return next({ status: 400, msg: "Invalid pagination parameters" });
   }
-  Promise.all(promises)
-    .then((results) => {
-      const comments = results[0];
-      response.status(200).send({ comments: comments });
+
+  const offset = (p - 1) * limit;
+
+  Promise.all([
+    selectArticleComments(article_id, limit, offset),
+    selectArticleById(article_id),
+  ])
+    .then(([comments, article]) => {
+      if (!article) {
+        return next({ status: 404, msg: "article not found" });
+      }
+
+      if (comments.length === 0) {
+        return response.status(200).send({ comments: [], total_count: 0 });
+      }
+
+      return selectTotalComments(article_id).then((totalCount) => {
+        response.status(200).send({ comments, total_count: totalCount });
+      });
     })
-    .catch((error) => {
-      next(error);
-    });
+    .catch(next);
 };
 
 exports.patchArticleVotesById = (request, response, next) => {

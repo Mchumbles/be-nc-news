@@ -164,3 +164,20 @@ exports.insertNewArticle = (newPost) => {
       return result.rows[0];
     });
 };
+
+exports.removeArticleById = (article_id) => {
+  if (isNaN(article_id)) {
+    return Promise.reject({ status: 400, msg: "Invalid article_id" });
+  }
+
+  return db
+    .query("DELETE FROM articles WHERE article_id = $1 RETURNING *;", [
+      article_id,
+    ])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Article not found" });
+      }
+      return rows[0];
+    });
+};

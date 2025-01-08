@@ -170,6 +170,41 @@ describe("/api/articles", () => {
           });
         });
     });
+    describe("DELETE", () => {
+      test("204: Successfully deletes the article and its comments", () => {
+        return request(app)
+          .delete("/api/articles/1")
+          .expect(204)
+          .then(() => {
+            return db.query("SELECT * FROM articles WHERE article_id = 1;");
+          })
+          .then(({ rows }) => {
+            expect(rows.length).toBe(0);
+            return db.query("SELECT * FROM comments WHERE article_id = 1;");
+          })
+          .then(({ rows }) => {
+            expect(rows.length).toBe(0);
+          });
+      });
+
+      test("404: Article not found for a valid but non-existent article_id", () => {
+        return request(app)
+          .delete("/api/articles/99999")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Article not found");
+          });
+      });
+
+      test("400: Invalid article_id (e.g., not a number)", () => {
+        return request(app)
+          .delete("/api/articles/not-a-number")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid article_id");
+          });
+      });
+    });
   });
 
   describe("/api/articles", () => {

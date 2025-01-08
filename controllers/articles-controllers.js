@@ -3,6 +3,7 @@ const {
   selectArticles,
   updateArticleVotesById,
   insertNewArticle,
+  removeArticleById,
 } = require("../models/articles-models");
 const {
   selectArticleComments,
@@ -92,4 +93,14 @@ exports.postArticle = (request, response, next) => {
     .catch((error) => {
       next(error);
     });
+};
+
+exports.deleteArticleById = (req, res, next) => {
+  const { article_id } = req.params;
+
+  removeArticleById(article_id)
+    .then(() => {
+      res.status(204).send();
+    })
+    .catch(next);
 };

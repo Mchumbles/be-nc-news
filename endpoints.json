@@ -66,6 +66,14 @@
       "article_img_url": "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700"
     }
   },
+  "DELETE /api/articles/:article_id": {
+    "description": "Deletes an article along with its associated comments based on the article_id.",
+    "exampleResponse": {
+      "204": {
+        "description": "No Content - Successfully deleted the article and its comments."
+      }
+    }
+  },
   "GET /api/articles/:article_id/comments": {
     "description": "Returns an array of comments for a specified article, with pagination support.",
     "queries": ["limit", "p"],

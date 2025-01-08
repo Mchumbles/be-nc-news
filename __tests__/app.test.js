@@ -192,12 +192,12 @@ describe("/api/articles", () => {
           });
       });
     });
-    test("GET: 204 - returns an empty array when topic does not exist", () => {
+    test("GET: 200 - returns an empty array when topic does not exist", () => {
       return request(app)
         .get("/api/articles?topic=invalid")
-        .expect(204)
+        .expect(200)
         .then((response) => {
-          expect(response.body).toEqual({});
+          expect(response.body).toEqual({ articles: [], total_count: 0 });
         });
     });
     test("POST: 201 - should post a new article on the articles table", () => {
@@ -493,6 +493,83 @@ describe("/api/articles", () => {
           .expect(400)
           .then((response) => {
             expect(response.body.msg).toEqual("bad request");
+          });
+      });
+    });
+    describe("GET /api/articles (pagination)", () => {
+      test("200: returns a paginated list of articles with default limit of 10", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles, total_count } = body;
+
+            expect(articles).toHaveLength(10);
+            expect(total_count).toBeGreaterThan(10);
+            articles.forEach((article) => {
+              expect(article).toMatchObject({
+                article_id: expect.any(Number),
+                title: expect.any(String),
+                topic: expect.any(String),
+                author: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                comment_count: expect.any(Number),
+              });
+            });
+          });
+      });
+
+      test("200: returns a paginated list of articles with custom limit and page", () => {
+        return request(app)
+          .get("/api/articles?limit=5&p=2")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles, total_count } = body;
+
+            expect(articles).toHaveLength(5);
+            expect(total_count).toBeGreaterThan(5);
+            articles.forEach((article) => {
+              expect(article).toMatchObject({
+                article_id: expect.any(Number),
+                title: expect.any(String),
+                topic: expect.any(String),
+                author: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                comment_count: expect.any(Number),
+              });
+            });
+          });
+      });
+
+      test("200: returns an empty array if page exceeds available data", () => {
+        return request(app)
+          .get("/api/articles?limit=10&p=1000")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles, total_count } = body;
+
+            expect(articles).toEqual([]);
+            expect(total_count).toBeGreaterThan(0);
+          });
+      });
+
+      test("400: responds with an error if limit or page is invalid", () => {
+        return request(app)
+          .get("/api/articles?limit=invalid&p=invalid")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid pagination parameters");
+          });
+      });
+
+      test("400: responds with an error if limit is less than 1", () => {
+        return request(app)
+          .get("/api/articles?limit=-5&p=2")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid pagination parameters");
           });
       });
     });

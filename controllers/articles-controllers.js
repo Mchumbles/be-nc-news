@@ -9,15 +9,21 @@ const db = require("../db/connection");
 const { request } = require("express");
 
 exports.getArticles = (request, response, next) => {
-  const { sort_by, order, topic } = request.query;
+  const {
+    sort_by = "created_at",
+    order = "desc",
+    topic,
+    limit = 10,
+    p = 1,
+  } = request.query;
 
-  selectArticles(sort_by, order, topic)
-    .then((articles) => {
-      if (articles.length === 0) {
-        response.status(204).send();
-      } else {
-        response.status(200).send({ articles });
-      }
+  if (isNaN(limit) || isNaN(p) || limit < 1 || p < 1) {
+    return next({ status: 400, msg: "Invalid pagination parameters" });
+  }
+
+  selectArticles(sort_by, order, topic, limit, p)
+    .then(({ articles, total_count }) => {
+      response.status(200).send({ articles, total_count });
     })
     .catch((error) => {
       next(error);

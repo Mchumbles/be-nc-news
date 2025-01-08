@@ -1,6 +1,12 @@
 const db = require("../db/connection");
 
-exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
+exports.selectArticles = (
+  sort_by = "created_at",
+  order = "desc",
+  topic,
+  limit = 10,
+  p = 1,
+) => {
   const validSortBys = ["created_at", "votes", "title", "author", "topic"];
 
   if (!validSortBys.includes(sort_by)) {
@@ -10,30 +16,51 @@ exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
   if (order !== "desc" && order !== "asc") {
     return Promise.reject({ status: 400, msg: "Invalid order value" });
   }
-  let queryStr = `
-  SELECT articles.author, 
-         articles.title, 
-         articles.article_id, 
-         articles.topic, 
-         articles.created_at, 
-         articles.votes, 
-         articles.article_img_url,
-         CAST(COUNT(comments.article_id) AS INTEGER) AS comment_count
-  FROM articles
-  LEFT JOIN comments ON articles.article_id = comments.article_id
-`;
 
   const queryParams = [];
+  const offset = (p - 1) * limit;
+
+  let queryStr = `
+    SELECT articles.author, 
+           articles.title, 
+           articles.article_id, 
+           articles.topic, 
+           articles.created_at, 
+           articles.votes, 
+           articles.article_img_url,
+           CAST(COUNT(comments.article_id) AS INTEGER) AS comment_count
+    FROM articles
+    LEFT JOIN comments ON articles.article_id = comments.article_id
+  `;
+
   if (topic) {
-    queryStr += `WHERE articles.topic = $1`;
+    queryStr += `WHERE articles.topic = $1 `;
     queryParams.push(topic);
   }
-  queryStr += `
-  GROUP BY articles.article_id
-  ORDER BY ${sort_by} ${order}`;
 
-  return db.query(queryStr, queryParams).then(({ rows }) => {
-    return rows;
+  queryStr += `
+    GROUP BY articles.article_id
+    ORDER BY ${sort_by} ${order}
+    LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2};
+  `;
+
+  queryParams.push(limit, offset);
+
+  const totalCountQuery = `
+    SELECT COUNT(*) AS total_count FROM articles
+    ${topic ? "WHERE topic = $1" : ""}
+  `;
+
+  const totalCountParams = topic ? [topic] : [];
+
+  return Promise.all([
+    db.query(queryStr, queryParams),
+    db.query(totalCountQuery, totalCountParams),
+  ]).then(([articleResult, totalCountResult]) => {
+    return {
+      articles: articleResult.rows,
+      total_count: parseInt(totalCountResult.rows[0].total_count),
+    };
   });
 };
 

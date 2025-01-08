@@ -10,23 +10,25 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all articles. Default sort_by is created_at decending",
-    "queries": ["sort_by", "order", "topic"],
+    "description": "Serves an array of all articles, with pagination support. Defaults to sorting by 'created_at' in descending order.",
+    "queries": ["sort_by", "order", "topic", "limit", "p"],
     "sort_by_queries": ["created_at", "votes", "title", "author", "topic"],
     "order_queries": ["asc", "desc"],
-    "topic_queries": "any existing topic in database",
+    "topic_queries": "any existing topic in the database",
     "exampleResponse": {
       "articles": [
         {
+          "article_id": 1,
           "title": "Seafood substitutions are increasing",
           "topic": "cooking",
           "author": "weegembump",
-          "body": "Text from the article..",
+          "body": "Text from the article...",
           "created_at": "2018-05-30T15:59:13.341Z",
           "votes": 0,
           "comment_count": 6
         }
-      ]
+      ],
+      "total_count": 100
     }
   },
   "GET /api/articles/:article_id": {

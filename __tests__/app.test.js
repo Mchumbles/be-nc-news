@@ -35,6 +35,71 @@ describe("/api/topics", () => {
       });
     });
   });
+  describe("POST /api/topics", () => {
+    test("201: Creates a new topic and returns the topic object", () => {
+      const newTopic = {
+        slug: "coding",
+        description: "All about coding topics.",
+      };
+
+      return request(app)
+        .post("/api/topics")
+        .send(newTopic)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.topic).toEqual(
+            expect.objectContaining({
+              slug: "coding",
+              description: "All about coding topics.",
+            }),
+          );
+        });
+    });
+
+    test("400: Bad request - missing required fields", () => {
+      const invalidTopic = {
+        slug: "coding",
+      };
+
+      return request(app)
+        .post("/api/topics")
+        .send(invalidTopic)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request: missing required fields");
+        });
+    });
+
+    test("400: Bad request - topic slug already exists", () => {
+      const duplicateTopic = {
+        slug: "mitch",
+        description: "Duplicate topic description.",
+      };
+
+      return request(app)
+        .post("/api/topics")
+        .send(duplicateTopic)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Topic slug already exists");
+        });
+    });
+
+    test("400: Bad request - wrong data type", () => {
+      const invalidTopic = {
+        slug: 12345,
+        description: "Description here.",
+      };
+
+      return request(app)
+        .post("/api/topics")
+        .send(invalidTopic)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request: wrong data type");
+        });
+    });
+  });
 });
 
 describe("/api", () => {
